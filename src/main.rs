@@ -26,12 +26,8 @@ static STATUS_ITEM_PTR: AtomicUsize = AtomicUsize::new(0);
 static RUN_ITEM_PTR: AtomicUsize = AtomicUsize::new(0);
 static STATUSBAR_BUTTON_PTR: AtomicUsize = AtomicUsize::new(0);
 
-unsafe fn set_enabled(item: id, enabled: bool) {
-    let _: () = msg_send![item, setEnabled: if enabled { 1i32 } else { 0i32 }];
-}
-
 unsafe fn set_title(item: id, title: &str) {
-    let s = NSString::alloc(nil).init_str(title);
+    let s = unsafe { NSString::alloc(nil).init_str(title) };
     let _: () = msg_send![item, setTitle: s];
 }
 
@@ -43,20 +39,20 @@ unsafe fn refresh_menu_state() {
     let running = engine().is_running();
 
     // Status line
-    if let Some(st_item) = (STATUS_ITEM_PTR.load(Ordering::SeqCst) as usize).checked_into_id() {
-        set_title(st_item, if running { "Status: Running" } else { "Status: Stopped" });
-        set_state(st_item, running);
+    if let Some(st_item) = unsafe { (STATUS_ITEM_PTR.load(Ordering::SeqCst) as usize).checked_into_id() } {
+        unsafe {set_title(st_item, if running { "Status: Running" } else { "Status: Stopped" });}
+        unsafe {set_state(st_item, running);}
     }
 
     // Single Start/Stop item label
-    if let Some(run_item) = (RUN_ITEM_PTR.load(Ordering::SeqCst) as usize).checked_into_id() {
-        set_title(run_item, if running { "Stop" } else { "Start" });
+    if let Some(run_item) = unsafe { (RUN_ITEM_PTR.load(Ordering::SeqCst) as usize).checked_into_id() }{
+       unsafe { set_title(run_item, if running { "Stop" } else { "Start" }); }
     }
 
     // Menu bar icon
-    if let Some(btn) = (STATUSBAR_BUTTON_PTR.load(Ordering::SeqCst) as usize).checked_into_id() {
+    if let Some(btn) = unsafe { (STATUSBAR_BUTTON_PTR.load(Ordering::SeqCst) as usize).checked_into_id() } {
         let icon = if running { "📋✅" } else { "📋⏸" };
-        let t = NSString::alloc(nil).init_str(icon);
+        let t = unsafe { NSString::alloc(nil).init_str(icon) };
         let _: () = msg_send![btn, setTitle: t];
     }
 }
