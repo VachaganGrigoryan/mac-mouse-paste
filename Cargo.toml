@@ -1,0 +1,16 @@
+[package]
+name = "mac-mouse-paste"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+core-graphics = "0.24"
+core-foundation = "0.9"
+dirs = "5"
+libc = "0.2"
+clap = { version = "4.5", features = ["derive"] }
+foreign-types-shared = "0.3"
+
+# menu bar UI (Rust-only)
+cocoa = "0.25"
+objc = "0.2"
